@@ -8,3 +8,6 @@ __pycache__/
 .venv/
 
 models/plots/*.png
+# Pytest cache
+#.pytest_cache/
+pytest-cache-files-*/
