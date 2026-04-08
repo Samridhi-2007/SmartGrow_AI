@@ -1,3 +1,11 @@
+---
+title: SmartGrow AI
+sdk: docker
+app_port: 7860
+tags:
+  - openenv
+---
+
 # SmartGrow AI
 
 SmartGrow AI is a lightweight plant-care simulator with a tabular reinforcement-learning agent, a CLI training loop, and a Streamlit dashboard for visualizing plant growth over time.
@@ -44,8 +52,12 @@ The dashboard lets you train an agent, step the simulation day by day, and watch
 ## Baseline Benchmark
 
 ```powershell
+$env:HF_TOKEN="hf_xxx"
+$env:HF_MODEL="openai/gpt-oss-20b"
 .\.venv\Scripts\python baseline_inference.py
 ```
+
+The baseline runner uses the OpenAI Python client against Hugging Face's OpenAI-compatible router. It reads credentials from `HF_TOKEN`, uses fixed task seeds by default, runs all benchmark tasks, and prints a reproducible per-task score plus `aggregate_score`.
 
 ## Tests
 
@@ -61,8 +73,29 @@ Build the image:
 docker build -t smartgrow-ai .
 ```
 
-Run the default CLI entrypoint:
+Run the Hugging Face Space container locally:
 
 ```powershell
-docker run --rm smartgrow-ai
+docker run --rm -p 7860:7860 smartgrow-ai
 ```
+
+Then open `http://localhost:7860`.
+
+Run the baseline benchmark inside the container:
+
+```powershell
+docker run --rm -e HF_TOKEN=hf_xxx -e HF_MODEL=openai/gpt-oss-20b smartgrow-ai python baseline_inference.py
+```
+
+## Hugging Face Spaces
+
+Use a Docker Space and point it at this repository. The repository metadata at the top of this `README.md` already declares:
+
+- `sdk: docker`
+- `app_port: 7860`
+- `tags: [openenv]`
+
+Set these Space secrets:
+
+- `HF_TOKEN`: token used by the OpenAI-compatible baseline evaluator
+- `HF_MODEL`: optional model override for `baseline_inference.py`
